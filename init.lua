@@ -139,7 +139,15 @@ function slider.show_with_timer(slider_widget)
 end
 
 ---@class Args
----@field template string
+---@field screen table Awesome table
+---@field template string Awesome template
+---@field position? 'top'|'left'|'bottom'|'right'
+---@field margin? number
+---@field bg? string
+---@field size? number
+---@field init_position number
+---@field radius? number
+---@field slider_name? string
 
 ---@param args Args
 local function new(args)
@@ -204,9 +212,12 @@ local function new(args)
     s[slider_name].init_x = init_x
     s[slider_name].init_y = init_y
 
-    -- s[slider_name]:connect_signal("property::width", function() --for centered placement, wanted to keep the offset
-    --     s[slider_name].x = s.geometry.x + s.geometry.width / 2 - s[slider_name].width / 2
-    -- end)
+    --TODO: complete this function
+    -- if init_position then
+    --     s[slider_name]:connect_signal("property::width", function() --for centered placement, wanted to keep the offset
+    --         s[slider_name].s[slider_name].axis = s.geometry.x + s.geometry.width / 2 - s[slider_name].width / 2
+    --     end)
+    -- end
 
     local position_init = s[slider_name].y
 
@@ -233,7 +244,9 @@ awesome.connect_signal('module::slider::show', function(slider_widget)
 end)
 
 local mt = {}
-function mt.__call(_, ...)
+
+---@param ... Args
+function mt.__call(...)
     new(...)
 end
 
