@@ -71,8 +71,9 @@ local function show_slider(slider_widget, position_sec)
 end
 
 ---@param layout_names table|string The state of the slider that can be displayed or not
+---@param t table awesome tag
 ---@return boolean
-function slider.clients_allow_to_display(layout_names)
+function slider.clients_allow_to_display(layout_names, t)
     local clients = {}
     -- Get all clients from all selected tags
     for _, t in ipairs(awful.screen.focused().selected_tags) do
@@ -89,7 +90,7 @@ function slider.clients_allow_to_display(layout_names)
     end
 
     if layout_names then
-        local tg = awful.screen.focused().selected_tag
+        local tg = t or awful.screen.focused().selected_tag
         if type(layout_names) == "table" then
             local status_of_show_in_spcific_layout = false
             for _, tag_name in ipairs(layout_names) do
