@@ -82,6 +82,7 @@ function slider.clients_allow_to_display(layout_names, t)
         end
     end
 
+    local filtered_clients = {}
     -- Filter clients that are not hidden or floated
     for _, client in ipairs(clients) do
         if not client.minimized and not (client.floating and not client.maximized) or client.fullscreen then
