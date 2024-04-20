@@ -1,0 +1,12 @@
+{
+    "diagnostics.globals": [
+        "vim",
+        "lfs"
+    ],
+    "workspace.library": [
+        "/usr/local/share/nvim/runtime/lua",
+        "/usr/local/share/nvim/runtime/lua/vim/lsp",
+        "/usr/share/awesome/lib/",
+        "${3rd}/lfs/library"
+    ]
+}
