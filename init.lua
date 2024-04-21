@@ -145,12 +145,12 @@ end
 ---@field margin? number
 ---@field bg? string
 ---@field size? number
----@field init_position number
+---@field init_point number
 ---@field radius? number
----@field slider_name? string
+---@field name? string
 
 ---@param args Args
-local function new(args)
+function slider.new(args)
     args = args or {}
     local s = args.screen
     local template = args.template
@@ -233,7 +233,6 @@ local function new(args)
     -- show slider when loaded awesome
     slider.show(s[slider_name])
 end
-
 
 awesome.connect_signal('module::slider::hide', function(slider_widget)
     slider.hide(slider_widget)
