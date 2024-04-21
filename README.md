@@ -1,11 +1,11 @@
-### Lua AwesomeWM Slider Library
+# Lua AwesomeWM Slider Library
 
 This library provides a flexible slider component for use in AwesomeWM configurations. It allows you to create customizable sliders that can be displayed on various screen positions.
 
 #### Requirements
 
 - [AwesomeWM](https://awesomewm.org/)
-- Lua 5.3 or later
+- [rubato](https://github.com/andOrlando/rubato)
 
 #### Installation
 
@@ -89,4 +89,3 @@ end)
 #### Contributing
 
 Contributions are welcome! Feel free to submit bug reports, feature requests, or pull requests on the [GitHub repository](https://github.com/lorem10/awesome-slider_widget.git).
-
