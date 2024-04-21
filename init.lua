@@ -140,7 +140,7 @@ end
 
 ---@class Args
 ---@field screen table Awesome table
----@field template string Awesome template
+---@field template table Awesome template
 ---@field position? 'top'|'left'|'bottom'|'right'
 ---@field margin? number
 ---@field bg? string
@@ -250,4 +250,4 @@ function mt.__call(...)
     new(...)
 end
 
-return setmetatable(slider, mt)
+return setmetatable(mt, slider)
