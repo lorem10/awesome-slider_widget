@@ -49,7 +49,7 @@ slider.show(slider_widget)
 slider.hide(slider_widget)
 
 -- Show the slider with a timer
-slider.show_with_timer(slider_widget)
+slider.hide_with_timer(slider_widget)
 ```
 
 #### Customization
@@ -91,7 +91,7 @@ awful.screen.connect_for_each_screen(function(s)
     -- Hide the slider with a timer when mouse leaves the dock area
     s.dock:connect_signal("mouse::leave", function()
         if not dock.clients_allow_to_display("floating") then
-            dock.show_with_timer(s.dock)
+            dock.hide_with_timer(s.dock)
         end
     end)
 end)
@@ -102,7 +102,7 @@ local function smart_show_dock_with_timer(t)
     if dock.clients_allow_to_display("floating", t) then
         dock.show(awful.screen.focused().dock)
     else
-        dock.show_with_timer(awful.screen.focused().dock)
+        dock.hide_with_timer(awful.screen.focused().dock)
     end
 end
 
