@@ -71,7 +71,9 @@ local my_template = {
     -- Your widget or template definition here
 }
 
+-- Connect the slider to each screen
 awful.screen.connect_for_each_screen(function(s)
+    -- Create a dock slider at the bottom of the screen
     s.dock = slider.new({
         screen = s,
         template = my_template,
@@ -83,13 +85,30 @@ awful.screen.connect_for_each_screen(function(s)
         radius = 10,
     })
 
+    -- Show the slider when mouse enters the dock area
     s.dock:connect_signal("mouse::enter", dock.show)
 
+    -- Hide the slider with a timer when mouse leaves the dock area
     s.dock:connect_signal("mouse::leave", function()
         if not dock.clients_allow_to_display("floating") then
             dock.show_with_timer(s.dock)
         end
     end)
+end)
+
+
+-- Define a function to smartly show the dock slider with a timer
+local function smart_show_dock_with_timer(t)
+    if dock.clients_allow_to_display("floating", t) then
+        dock.show(awful.screen.focused().dock)
+    else
+        dock.show_with_timer(awful.screen.focused().dock)
+    end
+end
+
+-- Connect the function to the tag's selected property change signal
+tag.connect_signal("property::selected", function(t)
+    smart_show_dock_with_timer(t)
 end)
 ```
 
