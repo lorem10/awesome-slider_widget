@@ -147,7 +147,6 @@ end
 ---@field size? number
 ---@field init_point number
 ---@field radius? number
----@field name? string
 
 ---@param args Args
 function slider.new(args)
@@ -160,7 +159,6 @@ function slider.new(args)
     local size = args.size or 65
     local init_point = args.init_point
     local radius = args.radius or beautiful.rounded
-    local slider_name = register_new_slider(args.name)
 
     if position ~= "top" and position ~= "bottom" and position ~= "left" and position ~= "right" then
         error("Invalid position in slider module, you may only use" .. " 'top', 'bottom', 'left' and 'right'")
@@ -173,7 +171,7 @@ function slider.new(args)
         popup_min_size, popup_max_size, popup_size = "minimum_height", "maximum_height", "height"
     end
 
-    s[slider_name] = awful.popup {
+    local slider_widget = awful.popup {
         [popup_max_size] = dpi(size),
         [popup_min_size] = dpi(size),
         [popup_size] = dpi(size),
@@ -193,36 +191,36 @@ function slider.new(args)
         autostart = false,
         single_shot = true,
         callback = function()
-            slider.hide(s[slider_name])
+            slider.hide(slider_widget)
         end
     }
 
-    s[slider_name]:setup(template)
-    s[slider_name].init_point = init_point
-    s[slider_name].position = position
+    slider_widget:setup(template)
+    slider_widget.init_point = init_point
+    slider_widget.position = position
     if position == "left" or position == "right" then
-        s[slider_name].axis = "x"
+        slider_widget.axis = "x"
     elseif position == "top" or position == "bottom" then
-        s[slider_name].axis = "y"
+        slider_widget.axis = "y"
     end
-    s[slider_name].margin = margin
-    local init_x, init_y = calc_hide_position(s, s[slider_name], position)
-    s[slider_name].x = init_x
-    s[slider_name].y = init_y
-    s[slider_name].init_x = init_x
-    s[slider_name].init_y = init_y
+    slider_widget.margin = margin
+    local init_x, init_y = calc_hide_position(s, slider_widget, position)
+    slider_widget.x = init_x
+    slider_widget.y = init_y
+    slider_widget.init_x = init_x
+    slider_widget.init_y = init_y
 
     --TODO: complete this function
     -- if init_position then
-    --     s[slider_name]:connect_signal("property::width", function() --for centered placement, wanted to keep the offset
-    --         s[slider_name].s[slider_name].axis = s.geometry.x + s.geometry.width / 2 - s[slider_name].width / 2
+    --     slider_widget:connect_signal("property::width", function() --for centered placement, wanted to keep the offset
+    --         slider_widget.slider_widget.axis = s.geometry.x + s.geometry.width / 2 - slider_widget.width / 2
     --     end)
     -- end
 
-    local position_init = s[slider_name].y
+    local position_init = slider_widget.y
 
-    if s[slider_name].position == "right" or s[slider_name].position == "left" then
-        position_init = s[slider_name].x
+    if slider_widget.position == "right" or slider_widget.position == "left" then
+        position_init = slider_widget.x
     end
 
     moveAnimation = rubato.timed {
@@ -231,9 +229,9 @@ function slider.new(args)
         duration = 0.23
     }
     -- show slider when loaded awesome
-    slider.show(s[slider_name])
+    slider.show(slider_widget)
 
-    return s[slider_name]
+    return slider_widget
 end
 
 awesome.connect_signal('module::slider::hide', function(slider_widget)
