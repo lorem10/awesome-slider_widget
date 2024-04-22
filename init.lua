@@ -71,7 +71,7 @@ local function show_slider(slider_widget, position_sec)
 end
 
 ---@param layout_names table|string The state of the slider that can be displayed or not
----@param t table awesome tag
+---@param t? table awesome tag
 ---@return boolean
 function slider.clients_allow_to_display(layout_names, t)
     local clients = {}
