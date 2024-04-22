@@ -52,14 +52,6 @@ local function calc_show_position(slider_widget)
     return slider_widget.init_x + slider_widget.width + slider_widget.margin
 end
 
-local function timer_rerun()
-    if hide_timer.started then
-        hide_timer:again()
-    else
-        hide_timer:start()
-    end
-end
-
 ---@param slider_widget table
 ---@param position_sec number
 local function show_slider(slider_widget, position_sec)
@@ -134,9 +126,12 @@ end
 -- TODO: rename this function to hide_with_timer
 -- show slider with timer that a few moment it hide
 ---@param slider_widget table
-function slider.show_with_timer(slider_widget)
-    slider.show(slider_widget)
-    timer_rerun()
+function slider.hide_with_timer(slider_widget)
+    if hide_timer.started then
+        hide_timer:again()
+    else
+        hide_timer:start()
+    end
 end
 
 ---@class Args
