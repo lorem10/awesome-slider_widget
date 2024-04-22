@@ -123,7 +123,6 @@ function slider.show(slider_widget)
     show_slider(slider_widget, position_sec)
 end
 
--- TODO: rename this function to hide_with_timer
 -- show slider with timer that a few moment it hide
 ---@param slider_widget table
 function slider.hide_with_timer(slider_widget)
