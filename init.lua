@@ -232,6 +232,8 @@ function slider.new(args)
     }
     -- show slider when loaded awesome
     slider.show(s[slider_name])
+
+    return s[slider_name]
 end
 
 awesome.connect_signal('module::slider::hide', function(slider_widget)
