@@ -83,6 +83,14 @@ awful.screen.connect_for_each_screen(function(s)
         radius = 10,
         name = "custom_slider"
     })
+
+    s.dock:connect_signal("mouse::enter", dock.show)
+
+    s.dock:connect_signal("mouse::leave", function()
+        if not dock.clients_allow_to_display("floating") then
+            dock.show_with_timer(s.dock)
+        end
+    end)
 end)
 ```
 
