@@ -247,7 +247,7 @@ local mt = {}
 
 ---@param ... Args
 function mt.__call(_, ...)
-    new(...)
+    slider.new(...)
 end
 
 return setmetatable(slider, mt)
