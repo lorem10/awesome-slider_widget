@@ -72,7 +72,7 @@ local my_template = {
 }
 
 awful.screen.connect_for_each_screen(function(s)
-    slider.new({
+    s.dock = slider.new({
         screen = s,
         template = my_template,
         position = "bottom",
@@ -81,7 +81,6 @@ awful.screen.connect_for_each_screen(function(s)
         size = 65,
         init_point = 100,
         radius = 10,
-        name = "custom_slider"
     })
 
     s.dock:connect_signal("mouse::enter", dock.show)
