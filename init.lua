@@ -149,6 +149,7 @@ end
 ---@field radius? number
 
 ---@param args Args
+---@return table  SliderWidget
 function slider.new(args)
     args = args or {}
     local s = args.screen
