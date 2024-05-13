@@ -26,8 +26,9 @@ local slider = require("slider")
 ##### Creating a Slider
 
 ```lua
-local slider_widget = slider.new({
+local slider_instance = slider.new({
     screen = awesome.screen.focused(), -- The screen to attach the slider to
+    instant_show = true,               -- when created a new slider automatic show
     template = my_template,            -- Widget or template to display in the slider
     position = "bottom",               -- Position of the slider ("top", "bottom", "left", "right")
     margin = 4,                        -- Margin around the slider
@@ -43,25 +44,18 @@ local slider_widget = slider.new({
 
 ```lua
 -- Show the slider
-slider.show(slider_widget)
+slider_instance:show()
 
 -- Hide the slider
-slider.hide(slider_widget)
+slider_instance:hide()
 
 -- Show the slider with a timer
-slider.hide_with_timer(slider_widget)
+slider_instance:hide_with_timer()
 ```
 
 #### Customization
 
 You can customize the appearance and behavior of the slider by adjusting the parameters passed to the `slider.new` function.
-
-#### Signals
-
-This library emits the following signals:
-
-- `module::slider::hide`: Triggered when a slider is hidden.
-- `module::slider::show`: Triggered when a slider is shown.
 
 #### Examples
 
@@ -74,25 +68,27 @@ local my_template = {
 -- Connect the slider to each screen
 awful.screen.connect_for_each_screen(function(s)
     -- Create a dock slider at the bottom of the screen
-    s.dock = slider.new({
+    local slider_instance = slider.new({
         screen = s,
         template = my_template,
         position = "bottom",
         margin = 4,
         bg = "#000000",
         size = 65,
-        instant_update = true,
+        instant_show = true,
         init_point = 100,
         radius = 10,
     })
+
+    s.dock = slider_instance.widget
 
     -- Show the slider when mouse enters the dock area
     s.dock:connect_signal("mouse::enter", dock.show)
 
     -- Hide the slider with a timer when mouse leaves the dock area
     s.dock:connect_signal("mouse::leave", function()
-        if not dock.clients_allow_to_display("floating") then
-            dock.hide_with_timer(s.dock)
+        if not slider_instance.clients_allow_to_display("floating") then
+            slider_instance:hide_with_timer()
         end
     end)
 end)
@@ -100,10 +96,10 @@ end)
 
 -- Define a function to smartly show the dock slider with a timer
 local function smart_show_dock_with_timer(t)
-    if dock.clients_allow_to_display("floating", t) then
-        dock.show(awful.screen.focused().dock)
+    if slider_instance.clients_allow_to_display("floating", t) then
+        slider_instance:show()
     else
-        dock.hide_with_timer(awful.screen.focused().dock)
+        slider_instance:hide_with_timer()
     end
 end
 
