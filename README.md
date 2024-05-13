@@ -81,6 +81,7 @@ awful.screen.connect_for_each_screen(function(s)
         margin = 4,
         bg = "#000000",
         size = 65,
+        instant_update = true,
         init_point = 100,
         radius = 10,
     })
