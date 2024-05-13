@@ -4,62 +4,49 @@ local beautiful = require("beautiful")
 local rubato = require "rubato"
 local dpi = require("beautiful.xresources").apply_dpi
 
-local slider = {}
-
----@type table
-local moveAnimation = {}
-local hide_timer = nil
-
--- This table used for store slider names
-slider.names = {}
-
----@param slider_name? string
----@return string slider_name
-local function register_new_slider(slider_name)
-    -- If you not pass slider_name param, this function will generate a name (like slider_1, slider_2, etc)
-    local sn = slider_name or ('slider_' .. tostring(#slider.names + 1))
-    table.insert(slider.names, sn)
-    return sn
-end
+local slider = {
+    hide_timer = nil,
+    moveAnimation = {},
+    widget = {}
+}
+slider.__index = slider
 
 ---@param s table awesome screen
 ---@param position 'bottom'|'right'|'left'|'top'
----@param slider_widget table
+---@param slf table
 ---@return number,number
-local function calc_hide_position(s, slider_widget, position)
-    slider_widget = slider_widget or awful.screen.focused().slider
+local function calc_hide_position(s, slf, position)
 
     if position == "bottom" then
-        return slider_widget.init_point or ((s.geometry.width / 2 - (s.geometry.x))), (s.geometry.height - 1)
+        return slf.init_point or ((s.geometry.width / 2 - (s.geometry.x))), (s.geometry.height - 1)
     elseif position == "top" then
-        return slider_widget.init_point or (s.geometry.width / 2) - (s.geometry.x), (1 - s.slider.height)
+        return slf.init_point or (s.geometry.width / 2) - (s.geometry.x), (1 - slf.widget.height)
     elseif position == "left" then
-        return (2 - slider_widget.width), slider_widget.init_point or s.geometry.height / 2 - s.geometry.y
+        return (2 - slf.widget.width), slf.init_point or s.geometry.height / 2 - s.geometry.y
     end
-    return (s.geometry.width - 2), slider_widget.init_point or (s.geometry.height / 2 - s.geometry.y)
+    return (s.geometry.width - 2), slf.init_point or (s.geometry.height / 2 - s.geometry.y)
 end
 
----@param slider_widget table
 ---@return number
-local function calc_show_position(slider_widget)
-    if slider_widget.position == "top" then
-        return slider_widget.init_y + slider_widget.height + slider_widget.margin
-    elseif slider_widget.position == "bottom" then
-        return slider_widget.init_y - (slider_widget.height + slider_widget.margin)
-    elseif slider_widget.position == "right" then
-        return slider_widget.init_x - (slider_widget.width + slider_widget.margin)
+local function calc_show_position(slf)
+    if slf.position == "top" then
+        return slf.init_y + slf.widget.height + slf.margin
+    elseif slf.position == "bottom" then
+        return slf.init_y - (slf.widget.height + slf.margin)
+    elseif slf.position == "right" then
+        return slf.init_x - (slf.widget.width + slf.margin)
     end
-    return slider_widget.init_x + slider_widget.width + slider_widget.margin
+    return slf.init_x + slf.widget.width + slf.margin
 end
 
----@param slider_widget table
 ---@param position_sec number
-local function show_slider(slider_widget, position_sec)
-    local axis = slider_widget.axis
-    moveAnimation:subscribe(function(pos)
-        slider_widget[axis] = pos
+local function show_slider(slf, position_sec)
+    local axis = slf.axis
+    local widget = slf.widget
+    slf.moveAnimation:subscribe(function(pos)
+        widget[axis] = pos
     end)
-    moveAnimation.target = position_sec
+    slf.moveAnimation.target = position_sec
 end
 
 ---@param layout_names table|string The state of the slider that can be displayed or not
@@ -100,36 +87,35 @@ function slider.clients_allow_to_display(layout_names, t)
 end
 
 -- hide slider
----@param slider_widget table
-function slider.hide(slider_widget)
-    local init_position = slider_widget.init_y
+function slider:hide()
+    local init_position = self.init_y
 
-    if slider_widget.position == "left" or slider_widget.position == "right" then
-        init_position = slider_widget.init_x
+    if self.position == "left" or self.position == "right" then
+        init_position = self.init_x
     end
+    local axis = self.axis
+    local widget = self.widget
 
-    moveAnimation:subscribe(function(pos)
-        slider_widget[slider_widget.axis or "y"] = pos
+    self.moveAnimation:subscribe(function(pos)
+        widget[axis] = pos
     end)
-    moveAnimation.target = init_position
-    hide_timer:stop()
+    self.moveAnimation.target = init_position
+    self.hide_timer:stop()
 end
 
----@param slider_widget table
-function slider.show(slider_widget)
-    hide_timer:stop()
+function slider:show()
+    self.hide_timer:stop()
 
-    local position_sec = calc_show_position(slider_widget)
-    show_slider(slider_widget, position_sec)
+    local position_sec = calc_show_position(self)
+    show_slider(self, position_sec)
 end
 
 -- show slider with timer that a few moment it hide
----@param slider_widget table
-function slider.hide_with_timer(slider_widget)
-    if hide_timer.started then
-        hide_timer:again()
+function slider:hide_with_timer()
+    if self.hide_timer.started then
+        self.hide_timer:again()
     else
-        hide_timer:start()
+        self.hide_timer:start()
     end
 end
 
@@ -140,12 +126,14 @@ end
 ---@field margin? number
 ---@field bg? string
 ---@field size? number
----@field init_point number
+---@field init_point? number
 ---@field radius? number
+---@field instant_update? boolean
 
 ---@param args Args
 ---@return table  SliderWidget
 function slider.new(args)
+    local self = setmetatable({}, slider)
     args = args or {}
     local s = args.screen
     local template = args.template
@@ -155,6 +143,7 @@ function slider.new(args)
     local size = args.size or 65
     local init_point = args.init_point
     local radius = args.radius or beautiful.rounded
+    local instant_update = args.instant_update or false
 
     if position ~= "top" and position ~= "bottom" and position ~= "left" and position ~= "right" then
         error("Invalid position in slider module, you may only use" .. " 'top', 'bottom', 'left' and 'right'")
@@ -167,7 +156,7 @@ function slider.new(args)
         popup_min_size, popup_max_size, popup_size = "minimum_height", "maximum_height", "height"
     end
 
-    local slider_widget = awful.popup {
+    self.widget = awful.popup {
         [popup_max_size] = dpi(size),
         [popup_min_size] = dpi(size),
         [popup_size] = dpi(size),
@@ -182,67 +171,55 @@ function slider.new(args)
         end,
         widget = {}
     }
-    hide_timer = gears.timer {
+    self.hide_timer = gears.timer {
         timeout = 1,
         autostart = false,
         single_shot = true,
         callback = function()
-            slider.hide(slider_widget)
+            self:hide()
         end
     }
 
-    slider_widget:setup(template)
-    slider_widget.init_point = init_point
-    slider_widget.position = position
+    self.widget:setup(template)
+    self.init_point = init_point
+    self.position = position
     if position == "left" or position == "right" then
-        slider_widget.axis = "x"
+        self.axis = "x"
     elseif position == "top" or position == "bottom" then
-        slider_widget.axis = "y"
+        self.axis = "y"
     end
-    slider_widget.margin = margin
-    local init_x, init_y = calc_hide_position(s, slider_widget, position)
-    slider_widget.x = init_x
-    slider_widget.y = init_y
-    slider_widget.init_x = init_x
-    slider_widget.init_y = init_y
+    self.margin = margin
+    local init_x, init_y = calc_hide_position(s, self, position)
+    self.widget.x = init_x
+    self.widget.y = init_y
+    self.init_x = init_x
+    self.init_y = init_y
 
-    --TODO: complete this function
-    -- if init_position then
-    --     slider_widget:connect_signal("property::width", function() --for centered placement, wanted to keep the offset
-    --         slider_widget.slider_widget.axis = s.geometry.x + s.geometry.width / 2 - slider_widget.width / 2
-    --     end)
-    -- end
+    -- TODO: complete this function
 
-    local position_init = slider_widget.y
-
-    if slider_widget.position == "right" or slider_widget.position == "left" then
-        position_init = slider_widget.x
+    if not self.init_position then
+        self.widget:connect_signal("property::width", function() -- for centered placement, wanted to keep the offset
+            self.widget.x = s.geometry.x + s.geometry.width / 2 - self.widget.width / 2
+        end)
     end
 
-    moveAnimation = rubato.timed {
+    local position_init = self.widget.y
+
+    if self.widget.position == "right" or self.widget.position == "left" then
+        position_init = self.widget.x
+    end
+
+    self.moveAnimation = rubato.timed {
         pos = position_init,
         intro = 0.1,
         duration = 0.23
     }
     -- show slider when loaded awesome
-    slider.show(slider_widget)
+    if instant_update then
+        self:show()
+    end
 
-    return slider_widget
+    return self
 end
 
-awesome.connect_signal('module::slider::hide', function(slider_widget)
-    slider.hide(slider_widget)
-end)
-
-awesome.connect_signal('module::slider::show', function(slider_widget)
-    slider.show(slider_widget)
-end)
-
-local mt = {}
-
----@param ... Args
-function mt.__call(_, ...)
-    slider.new(...)
-end
-
-return setmetatable(slider, mt)
+return slider
