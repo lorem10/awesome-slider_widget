@@ -128,7 +128,7 @@ end
 ---@field size? number
 ---@field init_point? number
 ---@field radius? number
----@field instant_update? boolean
+---@field instant_show? boolean
 
 ---@param args Args
 ---@return table  SliderWidget
@@ -143,7 +143,7 @@ function slider.new(args)
     local size = args.size or 65
     local init_point = args.init_point
     local radius = args.radius or beautiful.rounded
-    local instant_update = args.instant_update or false
+    local instant_show = args.instant_show or false
 
     if position ~= "top" and position ~= "bottom" and position ~= "left" and position ~= "right" then
         error("Invalid position in slider module, you may only use" .. " 'top', 'bottom', 'left' and 'right'")
@@ -215,7 +215,7 @@ function slider.new(args)
         duration = 0.23
     }
     -- show slider when loaded awesome
-    if instant_update then
+    if instant_show then
         self:show()
     end
 
