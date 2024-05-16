@@ -20,13 +20,13 @@ slider.__index = slider
 local function calc_hide_position(s, slf, position)
 
     if position == "bottom" then
-        return slf.init_point or ((s.geometry.width / 2 - (s.geometry.x))), (s.geometry.height - 1)
+        return slf.init_point or ((s.geometry.width / 2 - (s.geometry.x))), (s.geometry.height - slf.offset)
     elseif position == "top" then
-        return slf.init_point or (s.geometry.width / 2) - (s.geometry.x), (1 - slf.widget.height)
+        return slf.init_point or (s.geometry.width / 2) - (s.geometry.x), (slf.offset - slf.widget.height)
     elseif position == "left" then
-        return (2 - slf.widget.width), slf.init_point or s.geometry.height / 2 - s.geometry.y
+        return (slf.offset - slf.widget.width), slf.init_point or s.geometry.height / 2 - s.geometry.y
     end
-    return (s.geometry.width - 2), slf.init_point or (s.geometry.height / 2 - s.geometry.y)
+    return (s.geometry.width - slf.offset), slf.init_point or (s.geometry.height / 2 - s.geometry.y)
 end
 
 ---@return number
@@ -141,6 +141,7 @@ end
 ---@field init_point? number
 ---@field radius? number
 ---@field instant_show? boolean
+---@field offset? number
 
 ---@param args Args
 ---@return table  SliderWidget
@@ -156,6 +157,7 @@ function slider.new(args)
     local init_point = args.init_point
     local radius = args.radius or beautiful.rounded
     local instant_show = args.instant_show or false
+    local offset = args.offset or 2
 
     if position ~= "top" and position ~= "bottom" and position ~= "left" and position ~= "right" then
         error("Invalid position in slider module, you may only use" .. " 'top', 'bottom', 'left' and 'right'")
@@ -195,6 +197,7 @@ function slider.new(args)
     self.widget:setup(template)
     self.init_point = init_point
     self.position = position
+    self.offset = offset
     if position == "left" or position == "right" then
         self.axis = "x"
     elseif position == "top" or position == "bottom" then
