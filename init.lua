@@ -4,10 +4,12 @@ local beautiful = require("beautiful")
 local rubato = require "rubato"
 local dpi = require("beautiful.xresources").apply_dpi
 
+-- status values = 'hide'|'hiding'|'showing'|'show'
 local slider = {
     hide_timer = nil,
     moveAnimation = {},
-    widget = {}
+    widget = {},
+    status = "hide"
 }
 slider.__index = slider
 
@@ -45,6 +47,11 @@ local function show_slider(slf, position_sec)
     local widget = slf.widget
     slf.moveAnimation:subscribe(function(pos)
         widget[axis] = pos
+        if pos == position_sec then
+            slf.status = 'show'
+        else 
+            slf.status = 'showing'
+        end
     end)
     slf.moveAnimation.target = position_sec
 end
@@ -98,6 +105,11 @@ function slider:hide()
 
     self.moveAnimation:subscribe(function(pos)
         widget[axis] = pos
+        if pos == init_position then
+            self.status = 'hide'
+        else
+            self.status = 'hiding'
+        end
     end)
     self.moveAnimation.target = init_position
     self.hide_timer:stop()
