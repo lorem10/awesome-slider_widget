@@ -4,12 +4,10 @@ local beautiful = require("beautiful")
 local rubato = require "rubato"
 local dpi = require("beautiful.xresources").apply_dpi
 
--- status values = 'hide'|'hiding'|'showing'|'show'
 local slider = {
     hide_timer = nil,
     moveAnimation = {},
     widget = {},
-    status = "hide"
 }
 slider.__index = slider
 
@@ -41,20 +39,6 @@ local function calc_show_position(slf)
     return slf.init_x + slf.widget.width + slf.margin
 end
 
----@param position_sec number
-local function show_slider(slf, position_sec)
-    local axis = slf.axis
-    local widget = slf.widget
-    slf.moveAnimation:subscribe(function(pos)
-        widget[axis] = pos
-        if pos == position_sec then
-            slf.status = 'show'
-        else 
-            slf.status = 'showing'
-        end
-    end)
-    slf.moveAnimation.target = position_sec
-end
 
 ---@param layout_names table|string The state of the slider that can be displayed or not
 ---@param t? table awesome tag
@@ -100,26 +84,15 @@ function slider:hide()
     if self.position == "left" or self.position == "right" then
         init_position = self.init_x
     end
-    local axis = self.axis
-    local widget = self.widget
 
-    self.moveAnimation:subscribe(function(pos)
-        widget[axis] = pos
-        if pos == init_position then
-            self.status = 'hide'
-        else
-            self.status = 'hiding'
-        end
-    end)
     self.moveAnimation.target = init_position
     self.hide_timer:stop()
 end
 
 function slider:show()
     self.hide_timer:stop()
-
     local position_sec = calc_show_position(self)
-    show_slider(self, position_sec)
+    self.moveAnimation.target = position_sec
 end
 
 -- show slider with timer that a few moment it hide
@@ -210,8 +183,6 @@ function slider.new(args)
     self.init_x = init_x
     self.init_y = init_y
 
-    -- TODO: complete this function
-
     if not self.init_position then
         self.widget:connect_signal("property::width", function() -- for centered placement, wanted to keep the offset
             self.widget.x = s.geometry.x + s.geometry.width / 2 - self.widget.width / 2
@@ -229,6 +200,9 @@ function slider.new(args)
         intro = 0.1,
         duration = 0.23
     }
+    self.moveAnimation:subscribe(function(pos)
+        self.widget[self.axis] = pos
+    end)
     -- show slider when loaded awesome
     if instant_show then
         self:show()
