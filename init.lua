@@ -7,7 +7,7 @@ local dpi = require("beautiful.xresources").apply_dpi
 local slider = {
     hide_timer = nil,
     moveAnimation = {},
-    widget = {},
+    widget = {}
 }
 slider.__index = slider
 
@@ -38,7 +38,6 @@ local function calc_show_position(slf)
     end
     return slf.init_x + slf.widget.width + slf.margin
 end
-
 
 ---@param layout_names table|string The state of the slider that can be displayed or not
 ---@param t? table awesome tag
@@ -184,9 +183,15 @@ function slider.new(args)
     self.init_y = init_y
 
     if not self.init_position then
-        self.widget:connect_signal("property::width", function() -- for centered placement, wanted to keep the offset
-            self.widget.x = s.geometry.x + s.geometry.width / 2 - self.widget.width / 2
-        end)
+        if position == 'bottom' or position == 'top' then
+            self.widget:connect_signal("property::width", function()
+                self.widget.x = s.geometry.x + s.geometry.width / 2 - self.widget.width / 2
+            end)
+        else
+            self.widget:connect_signal("property::height", function()
+                self.widget.y = s.geometry.y + s.geometry.height / 2 - self.widget.height / 2
+            end)
+        end
     end
 
     local position_init = self.widget.y
